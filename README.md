@@ -2,7 +2,7 @@
 
 This kit provides a structured, drop-in workflow and knowledge base for automating video creation using **Remotion** (React-based video editing) or **HTML + GSAP** (GreenSock Animation Platform) rendered with Playwright & FFmpeg. 
 
-**This kit is 100% standalone and does NOT require the Archon CLI or any complex orchestration setup.** It works natively with any terminal and coding agent (such as Claude Code or the Gemini CLI).
+**This kit is 100% standalone and does NOT require the any PLugin CLI or any complex orchestration setup.** It works natively with any terminal and coding agent (such as Claude Code or the Gemini CLI).
 
 ---
 
