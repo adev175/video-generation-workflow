@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video Composition</title>
+  <!-- Load GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Load Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background-color: #0c0b1e;
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+    }
+    #stage {
+      position: relative;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+    
+    /* Background atmosphere */
+    .bg-gradient {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 60% 40%, rgba(98, 0, 234, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 30% 70%, rgba(0, 229, 255, 0.1) 0%, transparent 50%);
+      z-index: 1;
+    }
+    
+    .scene {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 80px;
+      z-index: 2;
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    /* Typography */
+    h1 {
+      font-size: 80px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #ffffff 0%, #e0e0ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    p.subtitle {
+      font-size: 36px;
+      font-weight: 400;
+      color: #b0b0d6;
+      max-width: 1200px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    
+    /* App Showcase elements */
+    .showcase-container {
+      display: flex;
+      width: 100%;
+      max-width: 1600px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 60px;
+    }
+    
+    .text-column {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .text-column h1 {
+      text-align: left;
+    }
+    
+    .text-column p {
+      font-size: 32px;
+      color: #b0b0d6;
+      line-height: 1.5;
+    }
+    
+    .image-column {
+      flex: 1.2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .app-screenshot {
+      width: 100%;
+      max-width: 900px;
+      border-radius: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 
+                  0 0 50px rgba(98, 0, 234, 0.2);
+    }
+    
+    /* Subtitles overlay at the bottom */
+    #captions-overlay {
+      position: absolute;
+      bottom: 100px;
+      left: 10%;
+      width: 80%;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 10;
+      font-size: 52px;
+      font-weight: 600;
+      line-height: 1.3;
+      white-space: pre-wrap;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+    }
+    
+    .word-active {
+      color: #00e5ff;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+      font-weight: 800;
+      transform: scale(1.05);
+      display: inline-block;
+    }
+    
+    .word-inactive {
+      color: #ffffff;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <!-- Animated background -->
+    <div class="bg-gradient"></div>
+    
+    <!-- SCENE 1: Intro Title Card -->
+    <div id="scene-intro" class="scene">
+      <h1 class="animate-up">Say Hello to Your App</h1>
+      <p class="subtitle animate-fade">The ultimate solution to your daily engineering workflows.</p>
+    </div>
+    
+    <!-- SCENE 2: Screenshot Showcase -->
+    <div id="scene-features" class="scene">
+      <div class="showcase-container">
+        <div class="text-column">
+          <h1 class="animate-left">Powerful Features</h1>
+          <p class="animate-fade">Visualize your data flow, monitor health metrics, and compile everything instantly.</p>
+        </div>
+        <div class="image-column">
+          <img class="app-screenshot animate-right" src="../screenshots/01_home.png" alt="App Screenshot">
+        </div>
+      </div>
+    </div>
+    
+    <!-- SCENE 3: CTA Card -->
+    <div id="scene-cta" class="scene">
+      <h1 class="animate-up">Get Started Today</h1>
+      <p class="subtitle animate-fade">Run on your local port 8000 and level up your stack.</p>
+    </div>
+    
+    <!-- Subtitle container -->
+    <div id="captions-overlay"></div>
+  </div>
+
+  <script>
+    // 1. Initialize GSAP timeline
+    const tl = gsap.timeline({ paused: true });
+    
+    // Scene timings (in seconds)
+    // Adjust these based on the actual voiceover duration
+    const scene1Dur = 5.0;
+    const scene2Dur = 6.0;
+    const scene3Dur = 5.0;
+    
+    // Scene 1 animations
+    tl.to("#scene-intro", { duration: 0.1, autoAlpha: 1 })
+      .from("#scene-intro .animate-up", { duration: 1.0, y: 50, opacity: 0, ease: "power3.out" }, "<")
+      .from("#scene-intro .animate-fade", { duration: 1.2, opacity: 0, ease: "power2.out" }, "-=0.5")
+      .to("#scene-intro", { duration: 0.8, autoAlpha: 0, y: -50, ease: "power3.in" }, `+=${scene1Dur - 1.5}`);
+      
+    // Scene 2 animations
+    tl.to("#scene-features", { duration: 0.1, autoAlpha: 1 })
+      .from("#scene-features .animate-left", { duration: 1.0, x: -80, opacity: 0, ease: "power3.out" }, "<")
+      .from("#scene-features .animate-fade", { duration: 1.2, opacity: 0, ease: "power2.out" }, "-=0.7")
+      .from("#scene-features .animate-right", { duration: 1.2, scale: 0.9, opacity: 0, ease: "power3.out" }, "<")
+      .to("#scene-features", { duration: 0.8, autoAlpha: 0, scale: 0.95, ease: "power3.in" }, `+=${scene2Dur - 1.5}`);
+      
+    // Scene 3 animations
+    tl.to("#scene-cta", { duration: 0.1, autoAlpha: 1 })
+      .from("#scene-cta .animate-up", { duration: 1.0, y: 50, opacity: 0, ease: "power3.out" }, "<")
+      .from("#scene-cta .animate-fade", { duration: 1.2, opacity: 0, ease: "power2.out" }, "-=0.5");
+      
+    // Background glow slow rotation
+    gsap.to(".bg-gradient", { duration: 20, rotation: 360, repeat: -1, ease: "none" });
+
+    // 2. Load word timestamps for interactive subtitles
+    let words = [];
+    fetch("../audio/word_timestamps.json")
+      .then(r => r.json())
+      .then(data => {
+        words = data.words || [];
+        updateSubtitles(0);
+      })
+      .catch(err => console.warn("No subtitles json loaded. Script will run without captions overlay."));
+
+    // Subtitle update loop synced to timeline seek
+    function updateSubtitles(timeMs) {
+      if (words.length === 0) return;
+      
+      const overlay = document.getElementById("captions-overlay");
+      
+      // Find the window of words around current time
+      // We display words in small groups (phrases) of ~6 words for readability
+      const activeWordIndex = words.findIndex(w => w.fromMs <= timeMs && w.toMs > timeMs);
+      
+      if (activeWordIndex === -1) {
+        // If not speaking, find next or check if before first
+        if (words.length > 0 && timeMs < words[0].fromMs) {
+          overlay.innerHTML = "";
+        }
+        return;
+      }
+      
+      // Select a group of 5 words around the active one
+      const startIdx = Math.max(0, activeWordIndex - 2);
+      const endIdx = Math.min(words.length, startIdx + 5);
+      const visibleWords = words.slice(startIdx, endIdx);
+      
+      const html = visibleWords.map(w => {
+        const isActive = w.fromMs <= timeMs && w.toMs > timeMs;
+        return `<span class="${isActive ? 'word-active' : 'word-inactive'}">${w.text}</span>`;
+      }).join(" ");
+      
+      overlay.innerHTML = html;
+    }
+
+    // Intercept GSAP tick to update subtitles during render or preview
+    // The render script seeks timeline frame-by-frame, triggering update
+    gsap.ticker.add(() => {
+      const timeMs = tl.time() * 1000;
+      updateSubtitles(timeMs);
+    });
+  </script>
+</body>
+</html>
